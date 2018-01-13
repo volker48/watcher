@@ -3,6 +3,8 @@ import logging
 import requests
 import time
 
+import sys
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -75,7 +77,13 @@ def load_watchlist():
 
 
 def main():
-    client = BTCRPCClient('marcus', 'test')
+    if len(sys.argv) == 3:
+        username = sys.argv[1]
+        password = sys.argv[2]
+    else:
+        print('Please pass a username and password when running the script like: python monitor.py user pass')
+        return
+    client = BTCRPCClient(username, password)
     watchlist = load_watchlist()
     tip = client.getbestblockhash()
     logger.info('Starting at blockhash %s', tip)

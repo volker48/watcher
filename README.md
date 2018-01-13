@@ -15,8 +15,11 @@ that are contained in the watch list.
 #### Start bitcoind
 
 The application requires a connection to `bitcoind`. An example of starting bitcoind is as follows: 
-`bitcoind -testnet -datadir=testnet -server -rpcuser=marcus -rpcpassword=test -txindex=1`. This
+`bitcoind -testnet -datadir=testnet -server -rpcuser=user -rpcpassword=pass -txindex=1`. This
 will run bitcoind on 127.0.0.1 and port 18332.
 
 #### Running the application
+
+To run the application execute `python monitor.py user pass` where `user` matches the `-rpcuser` for the RPC
+user of your bitcoind process and `pass` matches the `-rpcpassword` you set when starting bitcoind.
 
