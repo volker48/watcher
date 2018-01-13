@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -10,6 +11,7 @@ class BTCRPCClient(object):
     """
     RPC client for communicating with bitcoind.
     """
+
     def __init__(self, username, password, host='127.0.0.1', port='18332'):
         self.username = username
         self.password = password
@@ -59,8 +61,6 @@ class BTCRPCClient(object):
         resp_json = self._make_request('getblock', blockhash, verbosity)
         return resp_json.get('result')
 
-    def getraw
-
 
 def load_watchlist():
     """
@@ -75,14 +75,27 @@ def load_watchlist():
 
 
 def main():
-    client = BTCRPCClient('test', 'test')
+    client = BTCRPCClient('marcus', 'test')
     watchlist = load_watchlist()
     tip = client.getbestblockhash()
+    logger.info('Starting at blockhash %s', tip)
     while True:
         blockdata = client.getblock(tip)
         transactions = blockdata.get('tx')
         for transaction in transactions:
+            outputs = transaction.get('vout')
+            for output in outputs:
+                addresses = output['scriptPubKey'].get('addresses', [])
+                for address in addresses:
+                    if address in watchlist:
+                        logger.info('Found new deposit of %f to address %s', output.get('value'), address)
+        last_tip = tip
+        while last_tip == tip:
+            tip = client.getbestblockhash()
+            logger.debug('tip %s last tip %s', tip, last_tip)
+            time.sleep(1)
+        logger.info('New block %s', tip)
 
 
-
-client = BTCRPCClient('marcus', 'test')
+if __name__ == '__main__':
+    main()
