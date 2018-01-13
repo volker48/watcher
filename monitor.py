@@ -88,11 +88,13 @@ def main():
                 addresses = output['scriptPubKey'].get('addresses', [])
                 for address in addresses:
                     if address in watchlist:
+                        # TODO: Put this data somewhere permanent like a database
                         logger.info('Found new deposit of %f to address %s', output.get('value'), address)
         last_tip = tip
         while last_tip == tip:
             tip = client.getbestblockhash()
             logger.debug('tip %s last tip %s', tip, last_tip)
+            # Could probably sleep even longer
             time.sleep(1)
         logger.info('New block %s', tip)
 
