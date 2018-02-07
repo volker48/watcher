@@ -1,1 +1,4 @@
 rpc_commands.txt
+monitor.db
+balance_checkpoint.txt
+balances.json
