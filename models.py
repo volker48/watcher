@@ -2,29 +2,46 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+SATOSHI = 1e8
+
 
 class Checkpoint(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    hash = db.Column(db.String(64), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    hash = db.Column(db.String(64), unique=True, nullable=False)
 
 
 class Address(db.Model):
     address = db.Column(db.String(34), primary_key=True)
     # Store the balance as an integer in Satoshis
-    balance = db.Column(db.Integer)
+    balance = db.Column(db.Integer, default=0)
+
+    def get_balance(self):
+        """
+        Get the current balance of this address
+        :return: balance in BTC
+        """
+        return self.balance / SATOSHI
+
+    @staticmethod
+    def get_or_create(hash):
+        address = Address.query.filter_by(address=hash).one_or_none()
+        if address is None:
+            address = Address(address=hash)
+            db.session.add(address)
+            db.session.commit()
+        return address
 
 
-class Transaction(db.Model):
-    txid = db.Column(db.String(64), primary_key=True)
+class Watchlist(db.Model):
+    address = db.Column(db.String(34), primary_key=True)
 
+    @staticmethod
+    def add(hash):
+        addr = Watchlist(address=hash)
+        db.session.add(addr)
+        db.session.commit()
+        return addr
 
-class Block(db.Model):
-    hash = db.Column(db.String(64), primary_key=True)
-    confirmations = db.Column(db.Integer)
-    stripped_size = db.Column(db.Integer)
-    size = db.Column(db.Integer)
-    weight = db.Column(db.Integer)
-    height = db.Column(db.Integer)
-    version = db.Column(db.Integer)
-    version_hex = db.Column(db.String(8))
-    merkle_root = db.Column(db.String(64))
+    @staticmethod
+    def is_on_watchlist(address):
+        return Watchlist.query.filter_by(address=address).one_or_none() is not None

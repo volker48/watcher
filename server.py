@@ -1,16 +1,11 @@
-from flask import Flask, request, jsonify
-from models import db
+from flask import request, jsonify
 
-app = Flask(__name__)
+from app import create_app
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///monitor.db'
+app = create_app()
 
-db.init_app(app)
 
 @app.route('/withdrawal', methods=['POST'])
 def withdrawal():
     data = request.get_json()
     return jsonify(src=data['src'], dest=data['dest'], amount=data['amount'])
-
-
-
