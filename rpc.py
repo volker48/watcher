@@ -82,3 +82,7 @@ class BTCRPCClient(object):
     def gettx(self, txid):
         resp_json = self._make_request('getrawtransaction', txid, 2)
         return resp_json.get('result')
+
+    def sendtoaddress(self, address, amount):
+        resp_json = self._make_request('sendtoaddress', address, amount)
+        return resp_json.get('result')
