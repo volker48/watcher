@@ -1,7 +1,8 @@
+import json
 import logging
 import requests
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -85,4 +86,57 @@ class BTCRPCClient(object):
 
     def sendtoaddress(self, address, amount):
         resp_json = self._make_request('sendtoaddress', address, amount)
+        return resp_json.get('result')
+
+    def create_raw_transaction(self, inputs, outputs):
+        """
+        Creates a raw, unsigned transaction
+        :param inputs: list of dicts describing the inputs
+        :param outputs: dictionary of address: btc_amount pairs
+        :return: hex string of the transaction
+        """
+        resp_json = self._make_request('createrawtransaction', inputs, outputs)
+        return resp_json.get('result')
+
+    def sign_transaction(self, raw_tx):
+        """
+        Signs a transaction
+        :param tx: Hex string of raw tx
+        :return: Signed transaction
+        """
+        resp_json = self._make_request('signrawtransaction', raw_tx)
+        return resp_json.get('result')
+
+    def send_raw_transaction(self, signed_tx):
+        """
+
+        :param signed_tx:
+        :return:
+        """
+        resp_json = self._make_request('sendrawtransaction', signed_tx)
+        return resp_json.get('result')
+
+    def list_unspent(self, addresses, min_conf=6, max_conf=9999999):
+        """
+        Returns a list of unspent transaction data
+        [
+            {
+                "txid": "5ed28aedc8355214436f309f7115db75f3820b14ae7aff8edc9d45abb5c77e84",
+                "vout": 1,
+                "address": "n1ByWgeTeQacoRqBgzyoQaaSmHBcU7BGWQ",
+                "scriptPubKey": "76a914d7cba10239f8e6cc7fbdb68146fb1a53afc9637688ac",
+                "amount": 0.02165017,
+                "confirmations": 1174,
+                "spendable": true,
+                "solvable": true,
+                "safe": true
+            }
+        ]
+
+        :param addresses:
+        :param min_conf:
+        :param max_conf:
+        :return:
+        """
+        resp_json = self._make_request('listunspent', min_conf, max_conf, addresses)
         return resp_json.get('result')
